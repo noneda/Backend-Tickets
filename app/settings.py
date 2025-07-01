@@ -147,6 +147,9 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.TokenAuthentication",  # Add this line
     ],
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
 }
 
 # ? CORS_ORIGIN_WHITELIST = getenv("CORS_ORIGIN_WHITELIST").split(" ")
