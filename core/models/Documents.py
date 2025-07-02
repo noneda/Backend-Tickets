@@ -13,4 +13,5 @@ class Documents(models.Model):
     name = models.CharField(max_length=254)
     content = models.FileField(upload_to=categorized_upload_path)
     secretariat = models.ForeignKey(Secretariat, on_delete=models.CASCADE)
+    # TODO: Change this for ForeignKey Ticket...
     dataTicket = models.ForeignKey(DataTicket, on_delete=models.CASCADE)

@@ -13,12 +13,17 @@ from rest_framework import status
 def Tickets(request: HttpRequest):
     """This a Private Functions to Manage Tickets"""
     if request.method == "GET":
-        """"""
+        """This Get All"""
 
     if request.method == "PATCH":
-        """"""
+        """Update One"""
 
 
 @api_view(["POST"])
 def createTIckets(request: HttpRequest):
-    """This a Public Function to Create Tickets"""
+    """This a Public"""
+
+
+@api_view(["GET"])
+def searchOneTicket(request: HttpRequest):
+    """This a Public"""
