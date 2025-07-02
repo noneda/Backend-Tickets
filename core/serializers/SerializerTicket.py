@@ -4,5 +4,5 @@ from rest_framework import serializers
 
 class SerializerTicket(serializers.ModelSerializer):
     class Meta:
-        model: Ticket
+        model = Ticket
         fields = "__all__"

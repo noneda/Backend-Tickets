@@ -4,5 +4,5 @@ from rest_framework import serializers
 
 class SerializerDataTicket(serializers.ModelSerializer):
     class Meta:
-        model: DataTicket
+        model = DataTicket
         fields = "__all__"

@@ -4,5 +4,5 @@ from rest_framework import serializers
 
 class SerializerDocuments(serializers.ModelSerializer):
     class Meta:
-        model: Documents
+        model = Documents
         fields = "__all__"

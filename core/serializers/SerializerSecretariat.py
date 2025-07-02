@@ -4,5 +4,5 @@ from rest_framework import serializers
 
 class SerializerSecretariat(serializers.ModelSerializer):
     class Meta:
-        model: Secretariat
+        model = Secretariat
         fields = "__all__"

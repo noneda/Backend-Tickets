@@ -6,4 +6,5 @@ urlpatterns = [
     path("", info),
     path("test/", verifyTokenSuccessful),
     path("token/", include("core.urls.Auth")),
+    path("get/", include("core.urls.GET")),
 ]
