@@ -7,10 +7,12 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
+from core.models import Ticket, TypeTicket, Services, MyUser
+
 
 @api_view(["GET", "PATCH"])
 @permission_classes([IsAuthenticated])
-def Tickets(request: HttpRequest):
+def privateActionsTickets(request: HttpRequest):
     """This a Private Functions to Manage Tickets"""
     if request.method == "GET":
         """This Get All"""
@@ -19,11 +21,13 @@ def Tickets(request: HttpRequest):
         """Update One"""
 
 
-@api_view(["POST"])
-def createTIckets(request: HttpRequest):
-    """This a Public"""
+@api_view(["GET", "POST"])
+def publicActionsTIckets(request: HttpRequest):
+    """This a Public Functions to Manage Tickets"""
+    if request.method == "GET":
+        return Response({"Message": "TicketOnlyOne..."})
 
-
-@api_view(["GET"])
-def searchOneTicket(request: HttpRequest):
-    """This a Public"""
+    if request.method == "POST":
+        ticketData = request.data.get("ticket")
+        print(ticketData)
+        return Response({"message": "DataGet"}, status=status.HTTP_200_OK)

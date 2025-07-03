@@ -6,7 +6,7 @@ from django.utils import timezone
 
 
 class Ticket(models.Model):
-    submissionDate = models.DateField(default=timezone.now)
+    submissionDate = models.DateTimeField(default=timezone.now)
     code = models.CharField(max_length=20)
     completeDate = models.DateTimeField()
     active = models.BooleanField(default=True)

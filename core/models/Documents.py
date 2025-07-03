@@ -1,6 +1,6 @@
 from django.db import models
 from .Secretariat import Secretariat
-from .DataTicket import DataTicket
+from .DataTicket import Ticket
 from ..utils.upload_paths import categorized_upload_path
 
 
@@ -13,5 +13,4 @@ class Documents(models.Model):
     name = models.CharField(max_length=254)
     content = models.FileField(upload_to=categorized_upload_path)
     secretariat = models.ForeignKey(Secretariat, on_delete=models.CASCADE)
-    # TODO: Change this for ForeignKey Ticket...
-    dataTicket = models.ForeignKey(DataTicket, on_delete=models.CASCADE)
+    ticket = models.ForeignKey(Ticket, on_delete=models.CASCADE)

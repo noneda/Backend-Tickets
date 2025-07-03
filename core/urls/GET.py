@@ -1,6 +1,10 @@
 from django.urls import path
 
-from ..controllers.Secretariat import getSecretariat
-from ..controllers.Services import getServices
+from ..controllers.SendBasic import getBasics
+from ..controllers.SearchUser import getUserByEmail, suggestUsersByEmail
 
-urlpatterns = [path("services/", getServices), path("secretariat/", getSecretariat)]
+urlpatterns = [
+    path("basics/", getBasics),
+    path("user/", getUserByEmail),
+    path("suggest/", suggestUsersByEmail),
+]
