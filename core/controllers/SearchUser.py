@@ -40,6 +40,7 @@ def getUserByEmail(request: HttpRequest):
     secretariat_data = SerializerSecretariat(secretariat).data
 
     response_data = {
+        "id": user_data.get("id"),
         "email": user_data.get("email"),
         "name": f"{user_data.get('name', '')} {user_data.get('surname', '')}".strip(),
         "phone": user_data.get("cellphone"),

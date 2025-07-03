@@ -1,7 +1,6 @@
 from django.db import models
 from .TypeTicket import TypeTicket
 from .MyUser import MyUser
-from .Services import Services
 from django.utils import timezone
 
 
@@ -11,8 +10,8 @@ class Ticket(models.Model):
     completeDate = models.DateTimeField()
     active = models.BooleanField(default=True)
     typeTicket = models.ForeignKey(TypeTicket, on_delete=models.CASCADE)
-    service = models.ForeignKey(Services, on_delete=models.CASCADE)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
+    
 
     def save(self, *args, **kwargs):
         """This is for make a Code and SubmissionData"""

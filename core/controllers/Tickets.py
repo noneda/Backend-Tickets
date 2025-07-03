@@ -7,8 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
-from core.models import Ticket, TypeTicket, Services, MyUser
-
+from core.models import Ticket, TypeTicket
+from core.serializers import SerializerTicket
 
 @api_view(["GET", "PATCH"])
 @permission_classes([IsAuthenticated])
@@ -29,5 +29,11 @@ def publicActionsTIckets(request: HttpRequest):
 
     if request.method == "POST":
         ticketData = request.data.get("ticket")
-        print(ticketData)
-        return Response({"message": "DataGet"}, status=status.HTTP_200_OK)
+        typeTicketData = request.data.get("typeTicket")
+        try:
+            ticket = Ticket()
+        except Exception as e:
+            return Response(
+                {"error": f"Internal server error: {str(e)}"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )        
