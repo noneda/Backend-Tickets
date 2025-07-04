@@ -64,15 +64,14 @@ def suggestUsersByEmail(request: HttpRequest):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    emails = list(
-        MyUser.objects.filter(email__icontains=query).values_list("email", flat=True)[
-            :1
-        ]
+    email = (
+        MyUser.objects.filter(email__icontains=query)
+        .values_list("email", flat=True)
+        .first()
     )
-
-    if not emails:
+    if not email:
         return Response(
             {"message": "No matching emails found."}, status=status.HTTP_404_NOT_FOUND
         )
 
-    return Response({"suggestions": emails[0]}, status=status.HTTP_200_OK)
+    return Response({"suggestions": email}, status=status.HTTP_200_OK)
