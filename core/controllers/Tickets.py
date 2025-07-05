@@ -39,36 +39,37 @@ def publicActionsTIckets(request: HttpRequest):
     if request.method == "POST":
         ticketData = request.data.get("ticket")
         typeTicketName = request.data.get("typeTicket")
-        userId = request.data.get("user")
+        email = request.data.get("user")
         try:
-            typeTicket = TypeTicket.objects.get(name=typeTicketName)  # * Only need a id
-            user = MyUser.objects.get(pk=userId)
-            service = None
-            if "service" in ticketData:
-                service = Services.objects.get(name=ticketData["service"])
+            typeTicket = TypeTicket.objects.get(name=typeTicketName)
+            user = MyUser.objects.get(email=email)
+            ticket = Ticket(typeTicket=typeTicket, user=user)
+            ticket.save()
 
-            # TODO: DataTicket save logic
-            listDataTicket = []
             if isinstance(ticketData, dict):
                 for key, value in ticketData.items():
                     # TODO: In this loop Need get a Service
                     if key == "service":
-                        break
+                        service = Services.objects.get(name=ticketData["service"])
+                        serviceTicket = ServiceTicket(service=service, ticket=ticket)
+                        serviceTicket.save()
                     else:
                         addQuotationsMarks = lambda value: (
                             str(value) if isinstance(value, list) else f'"{value}"'
                         )
-                        listDataTicket.append(
-                            f'"{str(key)}" :  {addQuotationsMarks(value)}'  # ? like a String
+                        dataTicket = DataTicket(
+                            info=addQuotationsMarks(value), Ticket=ticket
                         )
-                        # * Here... Is for Save a DataTicket
+                        dataTicket.save()
+            send = SerializerTicket(ticket)
 
-            # TODO: Here create Ticket...
-            # ? Make a Conditionals for see a CODE From tickets it can make a Fixed...
-            
-
-
-            return Response({"message": "GetData"}, status=status.HTTP_200_OK)
+            return Response(
+                {
+                    "code": send.data.get("code"),
+                    "createTime": send.data.get("submissionDate"),
+                },
+                status=status.HTTP_200_OK,
+            )
         except Exception as e:
             return Response(
                 {"error": f"Internal server error: {str(e)}"},

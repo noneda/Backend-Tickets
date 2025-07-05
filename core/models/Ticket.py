@@ -6,27 +6,26 @@ from django.utils import timezone
 
 class Ticket(models.Model):
     submissionDate = models.DateTimeField(default=timezone.now)
-    code = models.CharField(max_length=20)
-    completeDate = models.DateTimeField()
+    code = models.CharField(max_length=9)
+    completeDate = models.DateTimeField(null=True, blank=True)
     active = models.BooleanField(default=True)
     typeTicket = models.ForeignKey(TypeTicket, on_delete=models.CASCADE)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-    
 
-    def save(self, *args, **kwargs):
+    def save(self, **kwargs):
         """This is for make a Code and SubmissionData"""
         date_now = timezone.now().date()
 
         prefix = "XX"
-        if self.typeTicket_id == 0:
+        if self.typeTicket.name == "Mesa de Ayuda":
             prefix = "MA"
-        elif self.typeTicket_id == 1:
+        elif self.typeTicket.name == "Pagina Web":
             prefix = "PW"
-        elif self.typeTicket_id == 2:
+        elif self.typeTicket.name == "Correos y Usuarios":
             prefix = "CU"
 
         today_tickets = Ticket.objects.filter(
-            submissionDate=date_now, code__startswith=prefix
+            submissionDate__date=date_now, code__startswith=prefix
         ).order_by("-code")
 
         if today_tickets.exists():
@@ -35,10 +34,10 @@ class Ticket(models.Model):
             new_number = last_number + 1
         else:
             new_number = 1
+        code = f"{prefix}{new_number:03d}"
 
-        self.code = f"{prefix}{new_number:03d}"
-
-        super().save(*args, **kwargs)
+        self.code = code
+        super().save(**kwargs)
 
     def Mark(self):
         self.active = False

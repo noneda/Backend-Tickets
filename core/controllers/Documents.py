@@ -10,14 +10,27 @@ from core.models import Ticket, Documents, Secretariat
 @api_view(["POST"])
 def publicSendDocuments(request: HttpRequest):
     secretariatName = request.data.get("secretariat")
-    documentsData = request.data.get("documents")
+    documentsData = request.FILES.getlist("documents")
     idTicket = request.data.get("ticket")
     try:
-        secretariat = Secretariat.objects.only("id").get(
-            name=secretariatName
-        )  # * Only need a id
+        secretariat = Secretariat.objects.only("id").get(name=secretariatName)
         ticket = Ticket.objects.only("id").get(pk=idTicket)
-        
+
+        if not documentsData:
+            return Response(
+                {"error": "No se recibieron archivos"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        for archivo in documentsData:
+            Documents.objects.create(
+                name=archivo.name,
+                content=archivo,
+                secretariat=secretariat,
+                ticket=ticket,
+            )
+
+        return Response({"message": "GetData"}, status=status.HTTP_200_OK)
 
     except Exception as e:
         return Response(
