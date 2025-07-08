@@ -12,15 +12,13 @@ def publicSendDocuments(request: HttpRequest):
     secretariatName = request.data.get("secretariat")
     documentsData = request.FILES.getlist("documents")
     idTicket = request.data.get("ticket")
+
+    if not idTicket:
+        return Response({"error": "Ticket requerido"}, status=400)
+
     try:
         secretariat = Secretariat.objects.only("id").get(name=secretariatName)
         ticket = Ticket.objects.only("id").get(pk=idTicket)
-
-        if not documentsData:
-            return Response(
-                {"error": "No se recibieron archivos"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
 
         for archivo in documentsData:
             Documents.objects.create(

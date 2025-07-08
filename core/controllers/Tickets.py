@@ -1,11 +1,15 @@
 """Controller to Ticket... Here Create All Logic"""
 
+from datetime import datetime
+
+
 from django.http.request import HttpRequest, HttpHeaders
 
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
+
 
 from core.models import (
     MyUser,
@@ -58,15 +62,21 @@ def publicActionsTIckets(request: HttpRequest):
                             str(value) if isinstance(value, list) else f'"{value}"'
                         )
                         dataTicket = DataTicket(
-                            info=addQuotationsMarks(value), Ticket=ticket
+                            info=f"{str(key)} : {addQuotationsMarks(value)}",
+                            Ticket=ticket,
                         )
                         dataTicket.save()
             send = SerializerTicket(ticket)
 
+            # TODO: Extra... this convert submissionDate to a format more simple
+            date = send.data.get("submissionDate")
+            format = datetime.fromisoformat(date.replace("Z", "+00:00"))
+            submission = format.strftime("%Y-%m-%d")
             return Response(
                 {
+                    "id": send.data.get("id"),
                     "code": send.data.get("code"),
-                    "createTime": send.data.get("submissionDate"),
+                    "createTime": submission,
                 },
                 status=status.HTTP_200_OK,
             )
