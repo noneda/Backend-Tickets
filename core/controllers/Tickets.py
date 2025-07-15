@@ -10,6 +10,8 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 
+import math
+import datetime
 
 from core.models import (
     MyUser,
@@ -23,12 +25,55 @@ from core.models import (
 from core.serializers import SerializerTicket
 
 
-@api_view(["GET", "PATCH"])
+@api_view(["GET"])
+@permission_classes([IsAuthenticated])
+def privateTicketsGetWebhook(request: HttpRequest):
+    """Get all tickets paginated, with optional filters"""
+    try:
+        group = int(request.query_params.get("grupo", 1))
+        groupSize = 20
+
+        getAllTickets = Ticket.objects.only(
+            "id", "submissionDate", "code", "active", "typeTicket"
+        ).order_by("-submissionDate")
+
+        date_str = request.query_params.get("submissionDate")
+        if date_str:
+            try:
+                parsed_date = datetime.datetime.strptime(date_str, "%y/%m/%d").date()
+                getAllTickets = getAllTickets.filter(submissionDate__date=parsed_date)
+            except ValueError:
+                return Response(
+                    {"error": "Fecha inválida. Usa el formato aa/mm/dd"},
+                    status=status.HTTP_400_BAD_REQUEST,
+                )
+
+        total = getAllTickets.count()
+        allGroups = math.ceil(total / groupSize)
+
+        start = (group - 1) * groupSize
+        end = start + groupSize
+        ticketsGroup = getAllTickets[start:end]
+
+        serializerTicket = SerializerTicket(ticketsGroup, many=True)
+        send = {
+            "allGroups": allGroups,
+            "tickets": serializerTicket.data,
+        }
+
+        return Response(send, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        return Response(
+            {"error": f"Internal server error: {str(e)}"},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+@api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def privateActionsTickets(request: HttpRequest):
     """This a Private Functions to Manage Tickets"""
-    if request.method == "GET":
-        """This Get All"""
 
     if request.method == "PATCH":
         """Update One"""
