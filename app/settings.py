@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "rest_framework",
     "rest_framework.authtoken",
+    "channels",
     "core",
 ]
 
@@ -71,10 +72,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "app.wsgi.application"
+ASGI_APPLICATION = "app.asgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/5.2/ref/settings/#databases
+#Local
 
 DATABASES = {
     "default": {
@@ -89,11 +89,19 @@ DATABASES = {
 
 """
 ? ... :P for Render 
-
 DATABASES = {
     'default': dj_database_url.parse(getenv('DATABASE_URL'), conn_max_age=600),
 }
 """
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],
+        },
+    },
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
