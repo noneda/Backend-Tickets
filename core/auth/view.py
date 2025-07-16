@@ -1,8 +1,12 @@
 from django.contrib.auth import authenticate
 from django.http.request import HttpRequest, HttpHeaders
 
-
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    authentication_classes,
+)
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
@@ -16,12 +20,6 @@ def doTokenWhenLoginUser(request: HttpRequest):
     username = request.data.get("username")
     password = request.data.get("password")
 
-    if not username or not password:
-        return Response(
-            {"error": "Username and password are required."},
-            status=status.HTTP_400_BAD_REQUEST,
-        )
-
     try:
         user = authenticate(username=username, password=password)
 
@@ -31,24 +29,32 @@ def doTokenWhenLoginUser(request: HttpRequest):
                 return Response({"token": token.key}, status=status.HTTP_200_OK)
             else:
                 return Response(
-                    {"error": "You do not have admin privileges."},
+                    {"message": "No tienes permisos de Administrador."},
                     status=status.HTTP_403_FORBIDDEN,
                 )
         else:
             return Response(
-                {"error": "Invalid credentials."}, status=status.HTTP_401_UNAUTHORIZED
+                {"message": "Datos Incorrectos."}, status=status.HTTP_401_UNAUTHORIZED
             )
 
     except Exception as e:
         return Response(
-            {"error": f"Internal server error: {str(e)}"},
+            {"message": f"Internal server error: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )
 
 
+@api_view(["GET"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def confirmationToken(request: HttpRequest):
+    """Confirms if a token is valid and returns user info"""
+    return Response({"status": True}, status=status.HTTP_202_ACCEPTED)
+
+
 @api_view(["POST"])
 @permission_classes([IsAuthenticated])
-def deleteTokenWhenLogOutUser(request):
+def deleteTokenWhenLogOutUser(request: HttpRequest):
     """Logout: Deletes the token of the authenticated user"""
 
     try:
@@ -59,6 +65,6 @@ def deleteTokenWhenLogOutUser(request):
         )
     except Exception as e:
         return Response(
-            {"error": f"Token could not be deleted: {str(e)}"},
+            {"message": f"Token could not be deleted: {str(e)}"},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR,
         )

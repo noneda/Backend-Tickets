@@ -30,14 +30,14 @@ from core.serializers import SerializerTicket
 def privateTicketsGetWebhook(request: HttpRequest):
     """Get all tickets paginated, with optional filters"""
     try:
-        group = int(request.query_params.get("grupo", 1))
+        group = int(request.query_params.get("group", 1))
         groupSize = 20
 
         getAllTickets = Ticket.objects.only(
             "id", "submissionDate", "code", "active", "typeTicket"
         ).order_by("-submissionDate")
 
-        date_str = request.query_params.get("submissionDate")
+        date_str = request.query_params.get("date")
         if date_str:
             try:
                 parsed_date = datetime.datetime.strptime(date_str, "%y/%m/%d").date()
