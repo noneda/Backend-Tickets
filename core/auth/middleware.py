@@ -1,18 +1,16 @@
-from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import AnonymousUser
+from rest_framework.authtoken.models import Token
 from urllib.parse import parse_qs
 from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware
 
-
 @database_sync_to_async
-def get_user_from_token(token):
+def get_user_from_token(token_key):
     try:
-        user, _ = TokenAuthentication().authenticate_credentials(token.encode())
-        return user
-    except Exception:
+        token = Token.objects.get(key=token_key)
+        return token.user
+    except Token.DoesNotExist:
         return AnonymousUser()
-
 
 class OptionalTokenAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):

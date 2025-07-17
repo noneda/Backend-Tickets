@@ -11,10 +11,11 @@ from channels.db import database_sync_to_async
 
 class TicketConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        if self.scope["user"].is_anonymous:
-            await self.close()
-        else:
-            await self.accept()
+        user = self.scope["user"]
+        if user.is_anonymous:
+            await self.close(code=403)
+            return
+        await self.accept()
 
     async def receive(self, text_data):
         try:
