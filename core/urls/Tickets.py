@@ -1,8 +1,8 @@
 from django.urls import path
 
-from ..controllers.Tickets import publicActionsTIckets, privateTicketsGetWebhook
+from ..controllers.Tickets import publicActionsTIckets
 
 urlpatterns = [
     path("public/", publicActionsTIckets),
-    path("getAll/", privateTicketsGetWebhook),
+    # path("getAll/", privateTicketsGetWebhook),
 ]
