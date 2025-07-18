@@ -72,16 +72,15 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "app.wsgi.application"
-ASGI_APPLICATION = "app.asgi.application"
 
 # Local
 
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "NAME": "backendappalc",
+        "NAME": "backendtickets",
         "USER": "postgres",
-        "PASSWORD": "",
+        "PASSWORD": "postgres",
         "HOST": "127.0.0.1",
         "PORT": "5432",
     }
@@ -94,6 +93,7 @@ DATABASES = {
 }
 """
 
+ASGI_APPLICATION = "app.asgi.application"
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",

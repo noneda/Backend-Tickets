@@ -17,6 +17,9 @@ class TicketConsumer(AsyncWebsocketConsumer):
             return
         await self.accept()
 
+    async def disconnect(self, close_code):
+        pass
+
     async def receive(self, text_data):
         try:
             user = self.scope["user"]
@@ -62,9 +65,6 @@ class TicketConsumer(AsyncWebsocketConsumer):
 
         except Exception as e:
             await self.send_json({"error": f"Error interno: {str(e)}"})
-
-    async def disconnect(self, close_code):
-        pass
 
     async def send_json(self, data):
         await self.send(text_data=json.dumps(data))
