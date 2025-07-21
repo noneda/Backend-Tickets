@@ -52,6 +52,8 @@ class TicketConsumer(AsyncWebsocketConsumer):
                     )
                     return
 
+            print(filters)
+
             tickets_qs = await self.get_filtered_queryset(filters)
 
             total = await self.count_queryset(tickets_qs)
@@ -61,6 +63,7 @@ class TicketConsumer(AsyncWebsocketConsumer):
             paginated = await self.slice_queryset(tickets_qs, start, end)
 
             serializer = SerializerTicket(paginated, many=True)
+            print(all_groups)
             await self.send_json({"allGroups": all_groups, "tickets": serializer.data})
 
         except Exception as e:
