@@ -11,6 +11,7 @@ from channels.db import database_sync_to_async
 
 class TicketConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        print(f"Intentando conectar usuario: {self.scope['user']}")
         user = self.scope["user"]
         if user.is_anonymous:
             await self.close(code=403)
@@ -22,13 +23,9 @@ class TicketConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         try:
-            user = self.scope["user"]
-            if user.is_anonymous:
-                await self.send_json({"error": "No autenticado"})
-                return
-
+            print("Start")
             data = json.loads(text_data)
-            group = int(data.get("group", 1))
+            group = int(1 + data.get("group", 0))
             group_size = 20
 
             filters = {}
@@ -44,7 +41,7 @@ class TicketConsumer(AsyncWebsocketConsumer):
 
             if "date" in data and data["date"]:
                 try:
-                    parsed_date = datetime.strptime(data["date"], "%y/%m/%d").date()
+                    parsed_date = datetime.strptime(data["date"], "%Y/%m/%d").date()
                     filters["submissionDate__date"] = parsed_date
                 except ValueError:
                     await self.send_json(
