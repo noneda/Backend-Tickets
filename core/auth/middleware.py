@@ -4,13 +4,17 @@ from urllib.parse import parse_qs
 from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware
 
+
 @database_sync_to_async
 def get_user_from_token(token_key):
     try:
+        print(f"Intentando autenticar token: {token_key}")
         token = Token.objects.get(key=token_key)
+        print(f"Token válido, usuario: {token.user}")
         return token.user
     except Token.DoesNotExist:
         return AnonymousUser()
+
 
 class OptionalTokenAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
