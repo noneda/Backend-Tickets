@@ -74,7 +74,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "app.wsgi.application"
 
 # Local
-
+"""
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
@@ -84,14 +84,13 @@ DATABASES = {
         "HOST": "127.0.0.1",
         "PORT": "5432",
     }
-}
+}"""
 
-"""
-? ... :P for Render 
+ 
 DATABASES = {
     'default': dj_database_url.parse(getenv('DATABASE_URL'), conn_max_age=600),
 }
-"""
+
 
 ASGI_APPLICATION = "app.asgi.application"
 
@@ -107,7 +106,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
+            "hosts": [getenv('REDIS_URL')],
         },
     },
 }

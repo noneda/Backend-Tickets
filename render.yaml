@@ -1,0 +1,50 @@
+# render.yaml
+
+services:
+  # ---
+  # Servicio de Redis
+  # ---
+  - type: redis
+    name: tickets-redis-channels # Nombre de tu servicio Redis en Render
+    plan: free # Usa el plan gratuito de Redis
+    maxmemoryPolicy: allkeys-lru # Política de manejo de memoria si se llena (adecuada para Channels)
+    region: oregon # ¡IMPORTANTE! Misma región para todos tus servicios
+
+  # ---
+  # Servicio de PostgreSQL
+  # ---
+  - type: pserv
+    name: tickets-database-posgresql # Nombre de tu servicio de base de datos en Render
+    plan: free # Usa el plan gratuito de PostgreSQL
+    databaseName: tickets_database_posgresql # Nombre de la base de datos que tu Django usará
+    user: tickets_database_posgresql_user # Nombre de usuario de la base de datos
+    region: oregon # ¡IMPORTANTE! Misma región
+
+  # ---
+  # Servicio del Backend Django DRF con Channels
+  # ---
+  - type: web # 'web' es para servicios web (tu backend Django)
+    name: tickets-rest-framework # Un nombre más conciso para tu servicio principal
+    env: python # Entorno de ejecución
+    region: oregon # ¡IMPORTANTE! Misma región para todos
+    plan: free # Puedes empezar con el plan gratuito para pruebas
+    buildCommand: "./build.sh" # El script que instala dependencias y migra
+    startCommand: "python -m gunicorn your_project_name.asgi:application -k uvicorn.workers.UvicornWorker" # ¡Asegúrate de cambiar 'your_project_name' por el nombre real de tu proyecto Django!
+    healthCheckPath: /health # O una URL de tu API para verificar que el servicio está activo
+    envVars:
+      - key: DATABASE_URL # Render inyectará automáticamente la URL de PostgreSQL aquí
+        fromDatabase:
+          name: tickets-database-posgresql # ¡Asegúrate de que este nombre coincida con el de tu servicio pserv!
+          property: connectionString
+      - key: REDIS_URL # Render inyectará automáticamente la URL de Redis aquí
+        fromRedis:
+          name: tickets-redis-channels # ¡Asegúrate de que este nombre coincida con el de tu servicio redis!
+          property: connectionString
+      - key: SECRET_KEY # ¡IMPORTANTE! Genera una clave secreta fuerte y única para producción
+        generateValue: true
+      - key: WEB_CONCURRENCY # Número de workers para Gunicorn/Uvicorn, ajusta según tu plan
+        value: 2 # Un valor razonable para un plan gratuito o inicial
+      - key: PYTHON_VERSION # Especifica la versión de Python
+        value: 3.11.9 # La versión que especificaste
+    numInstances: 1 # Para el plan gratuito, solo puedes tener una instancia
+    autoDeploy: true # Render automáticamente desplegará los cambios de tu rama principal
