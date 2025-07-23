@@ -21,6 +21,7 @@ from core.models import (
 
 from core.serializers import SerializerTicket
 
+
 @api_view(["PATCH"])
 @permission_classes([IsAuthenticated])
 def privateActionsTickets(request: HttpRequest):
@@ -64,15 +65,11 @@ def publicActionsTIckets(request: HttpRequest):
                         dataTicket.save()
             send = SerializerTicket(ticket)
 
-            # TODO: Extra... this convert submissionDate to a format more simple
-            date = send.data.get("submissionDate")
-            format = datetime.fromisoformat(date.replace("Z", "+00:00"))
-            submission = format.strftime("%Y-%m-%d")
             return Response(
                 {
                     "id": send.data.get("id"),
                     "code": send.data.get("code"),
-                    "createTime": submission,
+                    "createTime": send.data.get("submissionDate"),
                 },
                 status=status.HTTP_200_OK,
             )

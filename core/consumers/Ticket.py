@@ -5,7 +5,7 @@ import math
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
-from core.models import Ticket
+from core.models import Ticket, TypeTicket
 from core.serializers import SerializerTicket
 
 
@@ -50,7 +50,8 @@ class TicketConsumer(AsyncWebsocketConsumer):
                 filters["active"] = data["active"]
 
             if "typeTicket" in data and data["typeTicket"]:
-                filters["typeTicket__icontains"] = data["typeTicket"]
+                type_ticket_name = data["typeTicket"]
+                filters["typeTicket__name__icontains"] = type_ticket_name
 
             if "code" in data and data["code"]:
                 filters["code__icontains"] = data["code"]
@@ -75,7 +76,12 @@ class TicketConsumer(AsyncWebsocketConsumer):
                 print(
                     "No results found with date filter. Fetching all tickets instead."
                 )
-                tickets_qs = await self.get_all_tickets()
+                filters_for_all_tickets = {
+                    k: v
+                    for k, v in filters.items()
+                    if not k.startswith("submissionDate__date")
+                }
+                tickets_qs = await self.get_all_tickets(filters_for_all_tickets)
                 total = await self.count_queryset(tickets_qs)
 
             all_groups = math.ceil(total / group_size)
