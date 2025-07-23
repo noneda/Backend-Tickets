@@ -76,15 +76,15 @@ WSGI_APPLICATION = "app.wsgi.application"
 # Local
 
 DATABASES = {
-    #     "default": dj_database_url.parse(getenv("DATABASE_URL"), conn_max_age=600),
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "backendtickets",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
-    }
+    "default": dj_database_url.parse(getenv("DATABASE_URL"), conn_max_age=600),
+    # "default": {
+    #     "ENGINE": "django.db.backends.postgresql",
+    #     "NAME": "backendtickets",
+    #     "USER": "postgres",
+    #     "PASSWORD": "postgres",
+    #     "HOST": "127.0.0.1",
+    #     "PORT": "5432",
+    # }
 }
 
 
@@ -94,8 +94,8 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-            # "hosts": [getenv('REDIS_URL')],
+            # "hosts": [("127.0.0.1", 6379)],
+            "hosts": [getenv("REDIS_URL")],
         },
     },
 }
