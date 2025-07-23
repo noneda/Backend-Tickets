@@ -74,8 +74,9 @@ TEMPLATES = [
 WSGI_APPLICATION = "app.wsgi.application"
 
 # Local
-"""
+
 DATABASES = {
+    #     "default": dj_database_url.parse(getenv("DATABASE_URL"), conn_max_age=600),
     "default": {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "backendtickets",
@@ -84,29 +85,17 @@ DATABASES = {
         "HOST": "127.0.0.1",
         "PORT": "5432",
     }
-}"""
-
- 
-DATABASES = {
-    'default': dj_database_url.parse(getenv('DATABASE_URL'), conn_max_age=600),
 }
 
 
 ASGI_APPLICATION = "app.asgi.application"
 
-"""
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer"
-    }
-}
-
-"""
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [getenv('REDIS_URL')],
+            "hosts": [("127.0.0.1", 6379)],
+            # "hosts": [getenv('REDIS_URL')],
         },
     },
 }
