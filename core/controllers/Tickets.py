@@ -1,6 +1,6 @@
 """Controller to Ticket... Here Create All Logic"""
 
-from datetime import datetime, date
+from datetime import datetime
 
 
 from django.http.request import HttpRequest, HttpHeaders
@@ -62,7 +62,7 @@ def privateActionsTickets(request: HttpRequest):
                 {"Message": "Ticket not found"}, status=status.HTTP_400_BAD_REQUEST
             )
 
-        with transaction.atomic:
+        with transaction.atomic():
             if isinstance(observations, list):
                 for value in observations:
                     if isinstance(value, str):
