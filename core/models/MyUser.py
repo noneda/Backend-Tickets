@@ -43,9 +43,13 @@ class MyUserManager(BaseUserManager):
 
         email = self.normalize_email(email)
         user = self.model(email=email, **extra_fields)
-        user.set_password(password)
-        user.save()
 
+        if password:
+            user.set_password(password)
+        else:
+            user.set_unusable_password()
+
+        user.save(using=self._db)
         return user
 
     # TODO: This feature is required when creating an administrator model from the user

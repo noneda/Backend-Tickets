@@ -14,11 +14,12 @@ from rest_framework import status
 from core.models import (
     MyUser,
     Ticket,
-    TypeTicket,
+    Secretariat,
     DataTicket,
     Services,
     ServiceTicket,
     ObservationsTicket,
+    TypeTicket,
 )
 
 from core.serializers import (
@@ -26,6 +27,12 @@ from core.serializers import (
     SerializerObservationsTicket,
     SerializerServices,
     SerializerMyUser,
+)
+
+from core.utils.send_mail import (
+    createTicketMessage,
+    simpleSendMail,
+    sendBeautifulMail,
 )
 
 import json, ast
@@ -185,17 +192,45 @@ def publicActionsTickets(request: HttpRequest):
     if request.method == "POST":
         ticketData = request.data.get("ticket")
         typeTicketName = request.data.get("typeTicket")
-        email = request.data.get("user")
+        user = request.data.get("user")
 
-        if not all([ticketData, typeTicketName, email]):
+        if not all([ticketData, typeTicketName, user]):
             return Response(
                 {"message": "Missing required fields."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        """Logic to Create user when don`t Exist"""
+        try:
+            user = MyUser.objects.get(email=user.get("email"))
+        except MyUser.DoesNotExist:
+            department = user.get("department")
+            secretariat = Secretariat.objects.get(name=department)
+
+            fullName = user.get("name", "").strip()
+            name = None
+            surname = None
+
+            if fullName:
+                name_parts = fullName.split(maxsplit=1)
+                name = name_parts[0]
+            if len(name_parts) > 1:
+                surname = name_parts[1]
+
+            createArgs = {
+                "email": user.get("email"),
+                "name": name,
+                "surname": surname,
+                "cellphone": user.get("phone", None),
+                "secretariat": secretariat,
+            }
+
+            user = MyUser.objects.create_user(**createArgs)
+            print(f"Successfully created new user: {user.email}")
+
+        """Create Ticket"""
         try:
             typeTicket = TypeTicket.objects.get(name=typeTicketName)
-            user = MyUser.objects.get(email=email)
             ticket = Ticket(typeTicket=typeTicket, user=user)
             ticket.save()
 
@@ -216,6 +251,19 @@ def publicActionsTickets(request: HttpRequest):
                         )
                         dataTicket.save()
             send = SerializerTicket(ticket)
+            infoTicket = send.data
+            subject = (
+                f"Confirmación de Creación de Ticket - Código: {infoTicket.get('code')}"
+            )
+            recipientEmail = user.email
+
+            # * Simple Email
+            # message = createTicketMessage(user.name, infoTicket)
+            # simpleSendMail(subject, message, recipientEmail)
+
+            # * Email with Steroids
+            context = {"username": user.name, "ticket": infoTicket}
+            sendBeautifulMail(subject, recipientEmail, context)
 
             return Response(
                 {
@@ -231,11 +279,7 @@ def publicActionsTickets(request: HttpRequest):
                 {"message": f"Ticket type '{typeTicketName}' not found."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        except MyUser.DoesNotExist:
-            return Response(
-                {"message": f"User with email '{email}' not found."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+
         except Services.DoesNotExist:
             return Response(
                 {"message": f"Service '{ticketData.get('service')}' not found."},

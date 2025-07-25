@@ -59,7 +59,7 @@ ROOT_URLCONF = "app.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [BASE_DIR / "templates"],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -149,13 +149,20 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # * Token Segment
 AUTH_USER_MODEL = "core.MyUser"
 
+EMAIL_BACKEND = getenv("EMAIL_BACKEND", "django.core.mail.backends.smtp.EmailBackend")
+EMAIL_HOST = getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_PORT = int(getenv("EMAIL_PORT", 587))
+EMAIL_USE_TLS = getenv("EMAIL_USE_TLS", "True").lower() == "true"
+EMAIL_HOST_USER = getenv("EMAIL_HOST_USER", "")
+EMAIL_HOST_PASSWORD = getenv("EMAIL_HOST_PASSWORD", "")
+DEFAULT_FROM_EMAIL = getenv("EMAIL_HOST_USER", "")
 
 REST_FRAMEWORK = {
     # Use Django's standard `django.contrib.auth` permissions,
     # or allow read-only access for unauthenticated users.
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
     "DEFAULT_AUTHENTICATION_CLASSES": [
-        "rest_framework.authentication.TokenAuthentication",  # Add this line
+        # "rest_framework.authentication.TokenAuthentication",  # Add this line
     ],
     "DEFAULT_PERMISSION_CLASSES": [
         "rest_framework.permissions.AllowAny",
