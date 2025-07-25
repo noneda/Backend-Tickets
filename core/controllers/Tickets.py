@@ -28,7 +28,7 @@ from core.serializers import (
     SerializerMyUser,
 )
 
-import json
+import json, ast
 
 
 @api_view(["PATCH"])
@@ -85,7 +85,7 @@ def privateActionsTickets(request: HttpRequest):
 
 
 @api_view(["GET", "POST"])
-def publicActionsTIckets(request: HttpRequest):
+def publicActionsTickets(request: HttpRequest):
     """This a Public Functions to Manage Tickets"""
     if request.method == "GET":
         idTicket = request.query_params.get("ticket")
@@ -100,7 +100,7 @@ def publicActionsTIckets(request: HttpRequest):
                     {"Message": " Ticket not found"}, status=status.HTTP_404_NOT_FOUND
                 )
         else:
-            if not submissionDate and code:
+            if not (submissionDate and code):
                 return Response(
                     {"Message": "Ticket ID or submissionDate and Code is required"},
                     status=status.HTTP_400_BAD_REQUEST,
@@ -124,10 +124,10 @@ def publicActionsTIckets(request: HttpRequest):
                         status=status.HTTP_404_NOT_FOUND,
                     )
 
-        data = DataTicket.objects.filter(Ticket=ticket)
+        dataItems = DataTicket.objects.filter(Ticket=ticket)
         dataDict = []
 
-        for item in data:
+        for item in dataItems:
             infoStr = item.info
 
             try:
@@ -135,16 +135,17 @@ def publicActionsTIckets(request: HttpRequest):
                 key = parts[0].strip()
                 value = parts[1].strip()
 
+                parsedValue = value
+
                 try:
-                    parsed_value = json.loads(value)
-
+                    parsedValue = json.loads(value)
                 except json.JSONDecodeError:
-                    if value.startswith('"') and value.endswith('"'):
-                        parsed_value = value[1:-1]
-                    else:
-                        parsed_value = value
+                    try:
+                        parsedValue = ast.literal_eval(value)
+                    except (ValueError, SyntaxError):
+                        parsedValue = value
 
-                dataDict.append(parsed_value)
+                dataDict.append({key: parsedValue})
 
             except Exception as e:
                 print(f"Error parsing DataTicket ID {item.id}: '{infoStr}' - {e}")
@@ -154,7 +155,7 @@ def publicActionsTIckets(request: HttpRequest):
         user = ticket.user
 
         serviceTicket = ServiceTicket.objects.filter(ticket=ticket).first()
-        serializerService = {"data": None}
+        serializerService = None
 
         if serviceTicket:
             try:
@@ -176,7 +177,7 @@ def publicActionsTIckets(request: HttpRequest):
             "user": userSerializer.data,
             "data": dataDict,
             "observations": observationsSerializer.data,
-            "service": serializerService.data,
+            "service": serializerService,
         }
 
         return Response(send, status=status.HTTP_200_OK)
