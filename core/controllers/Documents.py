@@ -10,7 +10,7 @@ from core.serializers import SerializerDocuments
 
 
 @api_view(["GET", "POST"])
-def publicSendDocuments(request: HttpRequest):
+def publicDocuments(request: HttpRequest):
     if request.method == "GET":
         """Get method to a ticket Documents by ticket id"""
         id = request.query_params.get("ticket")
@@ -26,8 +26,8 @@ def publicSendDocuments(request: HttpRequest):
             documents = Documents.objects.filter(ticket=ticket)
             serializer = SerializerDocuments(
                 documents, many=True, context={"request": request}
-            )
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            ).data
+            return Response({"documents": serializer}, status=status.HTTP_200_OK)
 
         except Ticket.DoesNotExist:
             return Response(
