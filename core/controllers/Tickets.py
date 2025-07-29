@@ -14,7 +14,6 @@ from rest_framework import status
 from core.models import (
     MyUser,
     Ticket,
-    Secretariat,
     DataTicket,
     Services,
     ServiceTicket,
@@ -29,12 +28,6 @@ from core.serializers import (
     SerializerMyUser,
 )
 
-from core.utils.send_mail import (
-    createTicketMessage,
-    simpleSendMail,
-    sendBeautifulMail,
-)
-
 import json, ast
 
 
@@ -44,7 +37,6 @@ def privateActionsTickets(request: HttpRequest):
     """This a Private Functions to Manage Tickets"""
     if request.method == "PATCH":
         idTicket = request.data.get("ticket")
-        active = request.data.get("active")
         observations = request.data.get("observation")
         state = request.data.get("state")
 
@@ -68,27 +60,37 @@ def privateActionsTickets(request: HttpRequest):
             return Response(
                 {"Message": "Ticket not found"}, status=status.HTTP_400_BAD_REQUEST
             )
-
         with transaction.atomic():
             if isinstance(observations, list):
+                existing_observations_texts = set(
+                    obs.text for obs in ObservationsTicket.objects.filter(ticket=ticket)
+                )
+
                 for value in observations:
                     if isinstance(value, str):
-                        try:
-                            ticketObservation = ObservationsTicket(
-                                text=value, ticket=ticket
-                            )
-                            ticketObservation.save()
-                        except Exception as e:
-                            print(f"Error saving observation: {e}")
-                            raise
+                        cleaned_value = value.strip()
+                        if cleaned_value:
+                            if cleaned_value not in existing_observations_texts:
+                                try:
+                                    ticketObservation = ObservationsTicket(
+                                        text=cleaned_value, ticket=ticket
+                                    )
+                                    ticketObservation.save()
+                                    existing_observations_texts.add(cleaned_value)
+                                except Exception as e:
+                                    print(
+                                        f"Error saving observation for ticket {idTicket}: {e}"
+                                    )
+                                    raise
 
-            if active is not None and isinstance(active, bool) and active:
-                ticket.Mark()
+            if isinstance(state, str) and state.strip():
+                new_state = state.strip()
+                if new_state != ticket.state:
+                    ticket.state = new_state
 
-            if isinstance(state, str):
-                ticket.state = state
-
-            return Response(status=status.HTTP_202_ACCEPTED)
+            ticket.Mark()
+            ticket.save()
+        return Response(status=status.HTTP_202_ACCEPTED)
 
 
 @api_view(["GET", "POST"])
