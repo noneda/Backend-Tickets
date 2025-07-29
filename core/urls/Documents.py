@@ -1,7 +1,7 @@
 from django.urls import path
 
-from ..controllers.Documents import publicSendDocuments
+from ..controllers.Documents import publicDocuments
 
 urlpatterns = [
-    path("send/", publicSendDocuments),
+    path("send/", publicDocuments, name="ManegeDocuments"),
 ]

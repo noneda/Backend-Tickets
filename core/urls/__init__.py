@@ -8,5 +8,6 @@ urlpatterns = [
     path("token/", include("core.urls.Auth")),
     path("get/", include("core.urls.GET")),
     path("ticket/", include("core.urls.Tickets")),
-    path("documents/", include("core.urls.Documents"))
+    path("documents/", include("core.urls.Documents")),
+    path("helper/", include("core.urls.Helper")),
 ]

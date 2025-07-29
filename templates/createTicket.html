@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Ticket</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .header { background-color: #f4f4f4; padding: 10px 20px; text-align: center; border-bottom: 1px solid #ddd; }
+        .content { padding: 20px; }
+        .footer { text-align: center; font-size: 0.9em; color: #777; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+        .ticket-details { background-color: #e9f7ef; border-left: 5px solid #4CAF50; padding: 15px; margin-top: 20px; }
+        .ticket-details p { margin: 5px 0; }
+        strong { color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>¡Ticket Creado Exitosamente!</h2>
+        </div>
+        <div class="content">
+            <p>Hola <strong>{{ username|default:"usuario" }}</strong>,</p>
+            <p>Nos complace confirmarte que tu solicitud ha sido recibida y se ha generado un nuevo ticket para tu seguimiento.</p>
+
+            <div class="ticket-details">
+                <p><strong>Código del Ticket:</strong> {{ ticket.code }}</p>
+                <p><strong>Fecha de Creación:</strong> {{ ticket.submissionDate }}</p>
+                <p><strong>Tipo de Ticket:</strong> {{ ticket.typeTicket }}</p>
+                <p><strong>Estado Actual:</strong> {{ ticket.state }}</p>
+            </div>
+
+            <p>Estaremos procesando tu solicitud y te informaremos sobre cualquier actualización directamente en tu correo. Agradecemos tu paciencia.</p>
+            <p>Si tienes alguna pregunta, no dudes en responder a este correo.</p>
+            <p>¡Gracias por confiar en nosotros!</p>
+        </div>
+        <div class="footer">
+            <p>Atentamente,<br>El equipo de soporte.</p>
+        </div>
+    </div>
+</body>
+</html>

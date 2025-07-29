@@ -5,7 +5,7 @@ import math
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
 
-from core.models import Ticket, TypeTicket
+from core.models import Ticket
 from core.serializers import SerializerTicket
 
 
@@ -16,8 +16,10 @@ class TicketConsumer(AsyncWebsocketConsumer):
         Handles new WebSocket connections.
                 Authenticates the user and accepts the connection if the user is not anonymous.
         """
-        print(f"Intentando conectar usuario: {self.scope['user']}")
+        print(f"Trying to connect user: {self.scope['user']}")
         user = self.scope["user"]
+        self.token_key = self.scope.get("token_key")
+
         if user.is_anonymous:
             await self.close(code=403)
             return
@@ -28,7 +30,14 @@ class TicketConsumer(AsyncWebsocketConsumer):
         Handles WebSocket disconnections.
             Currently, it does nothing specific on disconnect.
         """
-        print(f"Desconectado con código: {close_code}")
+        print(f"Disconnected with code: {close_code}")
+        if self.token_key:
+            print(f"Deleting token: {self.token_key}")
+            await self.delete_auth_token(self.token_key)
+            print(f"Token {self.token_key} removed.")
+        else:
+            print("There is no token to delete on this connection..")
+
         pass
 
     async def receive(self, text_data):
