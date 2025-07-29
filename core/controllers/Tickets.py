@@ -194,42 +194,16 @@ def publicActionsTickets(request: HttpRequest):
         typeTicketName = request.data.get("typeTicket")
         user = request.data.get("user")
 
+        print(ticketData, typeTicketName, user)
         if not all([ticketData, typeTicketName, user]):
             return Response(
                 {"message": "Missing required fields."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        """Logic to Create user when don`t Exist"""
-        try:
-            user = MyUser.objects.get(email=user.get("email"))
-        except MyUser.DoesNotExist:
-            department = user.get("department")
-            secretariat = Secretariat.objects.get(name=department)
-
-            fullName = user.get("name", "").strip()
-            name = None
-            surname = None
-
-            if fullName:
-                name_parts = fullName.split(maxsplit=1)
-                name = name_parts[0]
-            if len(name_parts) > 1:
-                surname = name_parts[1]
-
-            createArgs = {
-                "email": user.get("email"),
-                "name": name,
-                "surname": surname,
-                "cellphone": user.get("phone", None),
-                "secretariat": secretariat,
-            }
-
-            user = MyUser.objects.create_user(**createArgs)
-            print(f"Successfully created new user: {user.email}")
-
         """Create Ticket"""
         try:
+            user = MyUser.objects.get(email=user)
             typeTicket = TypeTicket.objects.get(name=typeTicketName)
             ticket = Ticket(typeTicket=typeTicket, user=user)
             ticket.save()
@@ -251,20 +225,6 @@ def publicActionsTickets(request: HttpRequest):
                         )
                         dataTicket.save()
             send = SerializerTicket(ticket)
-            infoTicket = send.data
-            subject = (
-                f"Confirmación de Creación de Ticket - Código: {infoTicket.get('code')}"
-            )
-            recipientEmail = user.email
-
-            # * Simple Email
-            # message = createTicketMessage(user.name, infoTicket)
-            # simpleSendMail(subject, message, recipientEmail)
-
-            # * Email with Steroids
-            context = {"username": user.name, "ticket": infoTicket}
-            sendBeautifulMail(subject, recipientEmail, context)
-
             return Response(
                 {
                     "id": send.data.get("id"),

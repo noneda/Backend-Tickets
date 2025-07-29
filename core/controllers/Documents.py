@@ -45,6 +45,7 @@ def publicDocuments(request: HttpRequest):
         secretariatName = request.data.get("secretariat")
         documentsData = request.FILES.getlist("documents")
         idTicket = request.data.get("ticket")
+        print(secretariatName, documentsData, idTicket)
 
         if not idTicket:
             return Response({"error": "Ticket requerido"}, status=400)
