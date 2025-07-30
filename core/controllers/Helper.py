@@ -6,13 +6,18 @@ from rest_framework import status
 
 from core.models import MyUser, Secretariat, Ticket
 
-from core.serializers import SerializerMyUser, SerializerTicket
+from core.serializers import SerializerTicket
 
-from core.utils.send_mail import (
-    createTicketMessage,
-    simpleSendMail,
-    sendBeautifulMail,
+from core.utils.send_mail import sendBeautifulMail
+
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    authentication_classes,
 )
+
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 
 @api_view(["POST"])
@@ -56,7 +61,7 @@ def helperUser(request: HttpRequest):
 
 
 @api_view(["POST"])
-def helperSendMail(request: HttpRequest):
+def helperSendMailWhenCreate(request: HttpRequest):
     """This a helper to send Mail to user"""
     ticket = request.data.get("ticket")
     recipient = request.data.get("mail")
@@ -78,13 +83,34 @@ def helperSendMail(request: HttpRequest):
         email = recipient["email"]
         name = recipient["name"]
 
-        # * Simple Email
-        # message = createTicketMessage(user.name, infoTicket)
-        # simpleSendMail(subject, message, recipientEmail)
-
-        # * Email with Steroids
         context = {"username": name, "ticket": serTicket}
-        sendBeautifulMail(subject, email, context)
+        sendBeautifulMail(subject, email, context, "createTicket.html")
+        return Response(status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response(
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        )
+
+
+@api_view(["POST"])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def helperSendMailWhenPatch(request: HttpRequest):
+    """This a helper to send Mail to user"""
+    ticket = request.data.get("ticket")
+    recipient = request.data.get("mail")
+    if not ticket or not recipient or not recipient.get("email"):
+        return Response(
+            {"detail": "Ticket ID and recipient email are required."},
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+    try:
+        subject = f"Actualización de Ticket - Código: {ticket.get('code')}"
+        email = recipient["email"]
+        name = recipient["name"]
+
+        context = {"username": name, "ticket": ticket}
+        sendBeautifulMail(subject, email, context, "updateTicket.html")
         return Response(status=status.HTTP_200_OK)
     except Exception as e:
         return Response(

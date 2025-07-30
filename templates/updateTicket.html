@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Actualización de Ticket</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 8px; }
+        .header { background-color: #f4f4f4; padding: 10px 20px; text-align: center; border-bottom: 1px solid #ddd; }
+        .content { padding: 20px; }
+        .footer { text-align: center; font-size: 0.9em; color: #777; margin-top: 20px; border-top: 1px solid #eee; padding-top: 10px; }
+        /* Changed highlight color for updates */
+        .ticket-details { background-color: #fff3cd; border-left: 5px solid #ffc107; padding: 15px; margin-top: 20px; } 
+        .ticket-details p { margin: 5px 0; }
+        strong { color: #0056b3; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h2>¡Tu Ticket Ha Sido Actualizado!</h2>
+        </div>
+        <div class="content">
+            <p>Hola <strong>{{ username|default:"usuario" }}</strong>,</p>
+            <p>Te informamos que tu ticket ha recibido una actualización. Por favor, revisa los detalles a continuación:</p>
+
+            <div class="ticket-details">
+                <p><strong>Código del Ticket:</strong> {{ ticket.code }}</p>
+                <p><strong>Fecha de Última Actualización:</strong> {{ ticket.updatedDate }}</p>
+                <p><strong>Tipo de Ticket:</strong> {{ ticket.typeTicket }}</p>
+                <p><strong>Nuevo Estado:</strong> {{ ticket.state }}</p>
+                {% if ticket.last_observation %} {# Optional: Display the latest observation if available #}
+                <p><strong>Última Observación:</strong> {{ ticket.last_observation }}</p> 
+                {% endif %}
+                {% if ticket.assigned_to %} {# Optional: If you assign tickets #}
+                <p><strong>Asignado a:</strong> {{ ticket.assigned_to }}</p>
+                {% endif %}
+            </div>
+
+            <p>Puedes revisar el progreso completo de tu solicitud y cualquier otra información relevante iniciando sesión en tu panel de control o respondiendo a este correo.</p>
+            <p>Agradecemos tu paciencia mientras trabajamos para resolver tu solicitud.</p>
+            <p>Si tienes alguna pregunta, no dudes en contactarnos.</p>
+            <p>¡Gracias por confiar en nosotros!</p>
+        </div>
+        <div class="footer">
+            <p>Atentamente,<br>El equipo de soporte.</p>
+        </div>
+    </div>
+</body>
+</html>
