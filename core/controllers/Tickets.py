@@ -6,7 +6,12 @@ from datetime import datetime
 from django.http.request import HttpRequest, HttpHeaders
 from django.db import transaction
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import (
+    api_view,
+    permission_classes,
+    authentication_classes,
+)
+from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -32,6 +37,7 @@ import json, ast
 
 
 @api_view(["PATCH"])
+@authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
 def privateActionsTickets(request: HttpRequest):
     """This a Private Functions to Manage Tickets"""
@@ -39,6 +45,7 @@ def privateActionsTickets(request: HttpRequest):
         idTicket = request.data.get("ticket")
         observations = request.data.get("observation")
         state = request.data.get("state")
+        print(observations)
 
         if not idTicket:
             return Response(
