@@ -59,19 +59,20 @@ class Ticket(models.Model):
         else:
             super().save(*args, **kwargs)
 
-    def Mark(self, newState=None):
+    def Mark(self):
         """
         Marks the ticket as inactive and sets a completion date/time.
             Can also update the state field.
         """
-        self.completeDate = timezone.now().date()
-        if newState:
-            if newState.lower() in [choice[0] for choice in self.STATE_CHOICES]:
-                self.state = newState.lower()
-                if newState.lower() == ("resoled" or "close" or "cancel"):
-                    self.active = False
-            else:
-                print(
-                    f"Invalid state '{newState}' provided to Mark method for ticket {self.pk}"
-                )
-        self.save()
+        if self.state in ["resolved", "close", "cancel"]:
+
+            if not self.completeDate:
+                self.completeDate = timezone.now()
+            self.active = False
+        elif self.state in ["pending", "in_progress"]:
+
+            self.completeDate = None
+            self.active = True
+
+    def __str__(self):
+        return f"Ticket {self.code} - {self.state}"

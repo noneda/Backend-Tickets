@@ -39,10 +39,10 @@ def createTicketMessage(name, ticket) -> str:
     return messageBody
 
 
-def sendBeautifulMail(subject, recipient, context):
+def sendBeautifulMail(subject, recipient, context, html):
     """Send Mail by configuration on settings with HTML content."""
     try:
-        htmlContent = render_to_string("createTicket.html", context)
+        htmlContent = render_to_string(html, context)
         textContent = strip_tags(htmlContent)
 
         msg = EmailMultiAlternatives(
