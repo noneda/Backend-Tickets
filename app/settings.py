@@ -11,7 +11,6 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 
 from pathlib import Path
-import dj_database_url
 from os import getenv, path
 from pathlib import Path
 from dotenv import load_dotenv
@@ -73,17 +72,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "app.wsgi.application"
 
-# Local
 
 DATABASES = {
-    #     "default": dj_database_url.parse(getenv("DATABASE_URL"), conn_max_age=600),
     "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": "backendtickets",
-        "USER": "postgres",
-        "PASSWORD": "postgres",
-        "HOST": "127.0.0.1",
-        "PORT": "5432",
+        "ENGINE": getenv("DATABASES_ENGINE"),
+        "NAME": getenv("DATABASES_NAME"),
+        "USER": getenv("DATABASES_USER"),
+        "PASSWORD": getenv("DATABASES_PASSWORD"),
+        "HOST": getenv("DATABASES_HOST"),
+        "PORT": getenv("DATABASES_PORT"),
     }
 }
 
@@ -92,10 +89,14 @@ ASGI_APPLICATION = "app.asgi.application"
 
 CHANNEL_LAYERS = {
     "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "BACKEND": getenv("CHANNELS_LAYERS_BACKEND"),
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],
-            # "hosts": [getenv('REDIS_URL')],
+            "hosts": [
+                (
+                    getenv("CHANNELS_LAYERS_HOST_IP"),
+                    getenv("CHANNELS_LAYERS_HOST_PORT"),
+                )
+            ],
         },
     },
 }
