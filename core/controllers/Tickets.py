@@ -107,7 +107,6 @@ def publicActionsTickets(request: HttpRequest):
         idTicket = request.query_params.get("ticket")
         submissionDate = request.query_params.get("submissionDate")
         code = request.query_params.get("code")
-
         if idTicket:
             try:
                 ticket = Ticket.objects.get(pk=idTicket)
@@ -124,7 +123,9 @@ def publicActionsTickets(request: HttpRequest):
             else:
                 try:
                     parsedDate = datetime.strptime(submissionDate, "%Y/%m/%d").date()
-                    ticket = Ticket.objects.get(code=code, submissionDate=parsedDate)
+                    ticket = Ticket.objects.get(
+                        code=code, submissionDate__date=parsedDate
+                    )
 
                 except ValueError:
                     return Response(
